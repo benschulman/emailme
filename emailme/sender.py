@@ -1,27 +1,25 @@
-import datetime
+#import datetime
 import os
-from re import template
 from typing import OrderedDict
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 import smtplib
 from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
+#from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 
 SENDER = os.environ['EMAIL']
 RECIEVER = os.environ['EMAIL']
 PWD = os.environ['APP_PWD']
 
-PATH_TO_TEMPS = "email_temp/templates/"
+PATH_TO_TEMPS = "emailme/templates/"
 
 def _upack_table(dct):
-    """[summary]
+    """Private function used to unpack dictionary based tables as html
 
     Args:
-        dct ([type]): 
+        dct : {"cols":[headers], "rows": [rows]} 
     """
-
     env = Environment(
         loader=FileSystemLoader(PATH_TO_TEMPS),
         autoescape=select_autoescape(enabled_extensions=(),disabled_extensions=('html',))
@@ -43,10 +41,20 @@ def _upack_table(dct):
     return htm_str
 
 
-
-
 def construct_email_from_template(email_args, template_file, to, subject=None, table=None):
-    now = datetime.datetime.now()
+    """Function used to construct an email
+
+    Args:
+        email_args ([type]): the args passed into the template
+        template_file ([type]): The template file to use e.g. template.html
+        to (str): email address to send email to
+        subject (str, optional): Subject of the email. Defaults to None.
+        table (dict, optional): A table to add. Defaults to None.
+
+    Returns:
+        MIMEMultipart: The email message to be passed to the send_email function
+    """
+    #now = datetime.datetime.now()
     env = Environment(
         loader=FileSystemLoader(PATH_TO_TEMPS),
         autoescape=select_autoescape(enabled_extensions=(),disabled_extensions=('html',))
@@ -68,10 +76,7 @@ def construct_email_from_template(email_args, template_file, to, subject=None, t
 
     text = MIMEText(text, "plain")
     html = MIMEText(htm, "html")
-
-    print(htm)
-    print(text)
-
+    
     msg.attach(text)
     msg.attach(html)
 
@@ -81,6 +86,12 @@ def construct_email_from_template(email_args, template_file, to, subject=None, t
 
 
 def send_email(to, message):
+    """Sends a given email
+
+    Args:
+        to (str): Email address to send to
+        message (MIMEMultipart): The email message
+    """
     # Endpoint for the SMTP Gmail server (Don't change this!)
     smtp_server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
 
