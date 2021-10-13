@@ -65,7 +65,7 @@ def construct_email_from_template(
         table (dict, optional): A table to add. Defaults to None.
 
     Returns:
-        MIMEMultipart: The email message to be passed to the send_email function
+        MIMEMultipart: The email message passed to the send_email function
     """
     # now = datetime.datetime.now()
     env = Environment(
