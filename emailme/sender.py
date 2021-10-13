@@ -1,32 +1,38 @@
-#import datetime
+# import datetime
 import os
-from typing import OrderedDict
-from jinja2 import Environment, FileSystemLoader, select_autoescape
-
 import smtplib
-from email.mime.text import MIMEText
-#from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from typing import OrderedDict
 
-SENDER = os.environ['EMAIL']
-RECIEVER = os.environ['EMAIL']
-PWD = os.environ['APP_PWD']
+from jinja2 import Environment
+from jinja2 import FileSystemLoader
+from jinja2 import select_autoescape
+
+# from email.mime.image import MIMEImage
+
+SENDER = os.environ["EMAIL"]
+RECIEVER = os.environ["EMAIL"]
+PWD = os.environ["APP_PWD"]
 
 PATH_TO_TEMPS = "emailme/templates/"
+
 
 def _upack_table(dct):
     """Private function used to unpack dictionary based tables as html
 
     Args:
-        dct : {"cols":[headers], "rows": [rows]} 
+        dct : {"cols":[headers], "rows": [rows]}
     """
     env = Environment(
         loader=FileSystemLoader(PATH_TO_TEMPS),
-        autoescape=select_autoescape(enabled_extensions=(),disabled_extensions=('html',))
+        autoescape=select_autoescape(
+            enabled_extensions=(), disabled_extensions=("html",)
+        ),
     )
     table_temp = env.get_template("table.html")
 
-    header = ''.join([f"<th>{x}</th>" for x in dct['cols']])
+    header = "".join([f"<th>{x}</th>" for x in dct["cols"]])
 
     # datas = []
     # for row in dct['rows']:
@@ -35,13 +41,20 @@ def _upack_table(dct):
     #         d.append(f"<td>{data}</td>")
     #     datas.append(d)
 
-    body = ''.join([f"<tr>{''.join(x)}</tr>\n\t" for x in [[f"<td>{d}</td>" for d in row] for row in dct['rows']]])
-    
+    body = "".join(
+        [
+            f"<tr>{''.join(x)}</tr>\n\t"
+            for x in [[f"<td>{d}</td>" for d in row] for row in dct["rows"]]
+        ]
+    )
+
     htm_str = table_temp.render(header=header, body=body)
     return htm_str
 
 
-def construct_email_from_template(email_args, template_file, to, subject=None, table=None):
+def construct_email_from_template(
+    email_args, template_file, to, subject=None, table=None
+):
     """Function used to construct an email
 
     Args:
@@ -54,34 +67,36 @@ def construct_email_from_template(email_args, template_file, to, subject=None, t
     Returns:
         MIMEMultipart: The email message to be passed to the send_email function
     """
-    #now = datetime.datetime.now()
+    # now = datetime.datetime.now()
     env = Environment(
         loader=FileSystemLoader(PATH_TO_TEMPS),
-        autoescape=select_autoescape(enabled_extensions=(),disabled_extensions=('html',))
+        autoescape=select_autoescape(
+            enabled_extensions=(), disabled_extensions=("html",)
+        ),
     )
 
     template = env.get_template(template_file)
 
     if table:
-        email_args['extra'] = _upack_table(table)
+        email_args["extra"] = _upack_table(table)
 
     htm = template.render(**email_args)
-    text = ''.join([str(x) + "\n" for x in email_args.values()])
+    text = "".join([str(x) + "\n" for x in email_args.values()])
 
-    #img_data = open(ImgFileName, 'rb').read()
+    # img_data = open(ImgFileName, 'rb').read()
     msg = MIMEMultipart("alternative")
-    msg['Subject'] = "Hello" if not subject else subject
-    msg['From'] = SENDER
-    msg['To'] = to
+    msg["Subject"] = "Hello" if not subject else subject
+    msg["From"] = SENDER
+    msg["To"] = to
 
     text = MIMEText(text, "plain")
     html = MIMEText(htm, "html")
-    
+
     msg.attach(text)
     msg.attach(html)
 
-    #image = MIMEImage(img_data, name=os.path.basename(ImgFileName))
-    #msg.attach(image)
+    # image = MIMEImage(img_data, name=os.path.basename(ImgFileName))
+    # msg.attach(image)
     return msg
 
 
@@ -107,12 +122,13 @@ def send_email(to, message):
 
 def main():
     args = OrderedDict()
-    args['intro'] = "Hello There"
-    args['body'] = 'Here is your update'
-    args['conclusion'] = "Goodbye"
+    args["intro"] = "Hello There"
+    args["body"] = "Here is your update"
+    args["conclusion"] = "Goodbye"
 
     msg = construct_email_from_template(args, "template.html", RECIEVER)
     send_email(RECIEVER, msg)
-    
+
+
 if __name__ == "__main__":
     main()
