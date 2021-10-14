@@ -5,6 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import OrderedDict
 
+import pkg_resources
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
 from jinja2 import select_autoescape
@@ -69,13 +70,14 @@ def construct_email_from_template(
     """
     # now = datetime.datetime.now()
     env = Environment(
-        loader=FileSystemLoader(PATH_TO_TEMPS),
+        loader=FileSystemLoader("/"),
         autoescape=select_autoescape(
             enabled_extensions=(), disabled_extensions=("html",)
         ),
     )
-
-    template = env.get_template(template_file)
+    template = env.get_template(
+        pkg_resources.resource_filename(__name__, "templates/" + template_file)
+    )
 
     if table:
         email_args["extra"] = _upack_table(table)

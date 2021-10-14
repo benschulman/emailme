@@ -27,4 +27,5 @@ def test_df_to_dct():
 
 
 if __name__ == "__main__":
+    test_construct()
     test_df_to_dct()
