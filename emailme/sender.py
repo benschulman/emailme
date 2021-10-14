@@ -26,12 +26,14 @@ def _upack_table(dct):
         dct : {"cols":[cols], "rows": [rows]}
     """
     env = Environment(
-        loader=FileSystemLoader(PATH_TO_TEMPS),
+        loader=FileSystemLoader("/"),
         autoescape=select_autoescape(
             enabled_extensions=(), disabled_extensions=("html",)
         ),
     )
-    table_temp = env.get_template("table.html")
+    table_temp = env.get_template(
+        pkg_resources.resource_filename(__name__, "templates/table.html")
+    )
 
     header = "".join([f"<th>{x}</th>" for x in dct["cols"]])
 
