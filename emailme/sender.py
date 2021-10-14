@@ -22,7 +22,7 @@ def _upack_table(dct):
     """Private function used to unpack dictionary based tables as html
 
     Args:
-        dct : {"cols":[headers], "rows": [rows]}
+        dct : {"cols":[cols], "rows": [rows]}
     """
     env = Environment(
         loader=FileSystemLoader(PATH_TO_TEMPS),
@@ -118,6 +118,13 @@ def send_email(to, message):
     smtp_server.close()
 
     return
+
+
+def df_to_dct(df):
+    dct = {}
+    dct["cols"] = list(df.columns)
+    dct["rows"] = df.values.tolist()
+    return dct
 
 
 def main():
